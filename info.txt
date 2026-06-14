@@ -1,0 +1,562 @@
+================================================================================
+FEATURE ENGINEERING DOCUMENTATION
+Traffic Demand Prediction
+================================================================================
+
+1. Index
+Type: int64
+
+Purpose:
+Unique identifier for each record.
+
+Expected Impact:
+Low
+
+--------------------------------------------------------------------------------
+
+2. geohash
+Type: category
+
+Purpose:
+Represents the geographical location.
+
+Intuition:
+Different locations naturally have different traffic patterns and demand levels.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+3. day
+Type: int64
+
+Purpose:
+Represents the day number.
+
+Intuition:
+Traffic varies across different days.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+4. RoadType
+Type: int64
+
+Purpose:
+Encoded road category.
+
+Intuition:
+Different road types carry different traffic volumes.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+5. NumberofLanes
+Type: int64
+
+Purpose:
+Represents road capacity.
+
+Intuition:
+Roads with more lanes generally handle more traffic.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+6. LargeVehicles
+Type: int64
+
+Purpose:
+Presence of large vehicles.
+
+Intuition:
+Heavy vehicles affect traffic flow and congestion.
+
+Expected Impact:
+Low-Medium
+
+--------------------------------------------------------------------------------
+
+7. Landmarks
+Type: int64
+
+Purpose:
+Presence of nearby landmarks.
+
+Intuition:
+Popular landmarks attract additional traffic.
+
+Expected Impact:
+Low-Medium
+
+--------------------------------------------------------------------------------
+
+8. Temperature
+Type: float64
+
+Purpose:
+Represents environmental temperature.
+
+Intuition:
+Temperature influences travel behavior and traffic demand.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+9. Weather
+Type: int64
+
+Purpose:
+Encoded weather condition.
+
+Intuition:
+Bad weather can reduce or increase traffic depending on location.
+
+Expected Impact:
+Low-Medium
+
+--------------------------------------------------------------------------------
+
+10. geo_freq
+Type: float64
+
+Formula:
+Count(geohash)
+
+Purpose:
+Measures how frequently a location appears.
+
+Intuition:
+Frequently observed locations usually have more stable traffic patterns.
+
+Expected Impact:
+High
+
+--------------------------------------------------------------------------------
+
+11. hour
+Type: int64
+
+Purpose:
+Hour extracted from timestamp.
+
+Intuition:
+Traffic follows strong hourly cycles.
+
+Expected Impact:
+High
+
+--------------------------------------------------------------------------------
+
+12. minute
+Type: int64
+
+Purpose:
+Minute extracted from timestamp.
+
+Intuition:
+Captures finer temporal patterns.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+13. hour_sin
+Type: float64
+
+Formula:
+sin(2π × hour / 24)
+
+Purpose:
+Cyclic encoding of hour.
+
+Intuition:
+23:00 and 00:00 should be close in representation.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+14. hour_cos
+Type: float64
+
+Formula:
+cos(2π × hour / 24)
+
+Purpose:
+Complements hour_sin for cyclic representation.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+15. minute_sin
+Type: float64
+
+Formula:
+sin(2π × minute / 60)
+
+Purpose:
+Cyclic encoding of minute.
+
+Expected Impact:
+Low-Medium
+
+--------------------------------------------------------------------------------
+
+16. minute_cos
+Type: float64
+
+Formula:
+cos(2π × minute / 60)
+
+Purpose:
+Complements minute_sin.
+
+Expected Impact:
+Low-Medium
+
+--------------------------------------------------------------------------------
+
+17. lanes_temp
+Type: float64
+
+Formula:
+NumberofLanes × Temperature
+
+Purpose:
+Interaction between road capacity and weather.
+
+Intuition:
+Temperature effects may differ for roads of different sizes.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+18. temp_hour
+Type: float64
+
+Formula:
+Temperature × hour
+
+Purpose:
+Captures temperature variation throughout the day.
+
+Intuition:
+Morning and afternoon temperatures affect traffic differently.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+19. geohash_target
+Type: float64
+
+Formula:
+Mean Demand of each geohash
+
+Purpose:
+Target encoding of location.
+
+Intuition:
+Provides historical traffic demand information for each location.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+20. time_block
+Type: category
+
+Values:
+Morning, Afternoon, Night
+
+Purpose:
+Groups hours into larger traffic periods.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+21. road_broadness
+Type: category
+
+Formula:
+RoadType + "_" + NumberofLanes
+
+Purpose:
+Combines road type with capacity.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+22. large_vehicles_time
+Type: category
+
+Formula:
+LargeVehicles + "_" + hour
+
+Purpose:
+Captures interaction between heavy vehicles and time.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+23. is_peak_time
+Type: int64
+
+Values:
+1 = Peak Hour
+0 = Non-Peak Hour
+
+Purpose:
+Identifies rush-hour periods.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+24. weather_hour
+Type: category
+
+Formula:
+Weather + "_" + hour
+
+Purpose:
+Captures weather effects at different times.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+25. road_hour
+Type: category
+
+Formula:
+RoadType + "_" + hour
+
+Purpose:
+Captures road behavior across time.
+
+Expected Impact:
+Medium
+
+--------------------------------------------------------------------------------
+
+26. geo_hour
+Type: category
+
+Formula:
+geohash + "_" + hour
+
+Purpose:
+Location-specific time feature.
+
+Intuition:
+The same hour behaves differently across locations.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+27. weather_freq
+Type: int64
+
+Formula:
+Count(Weather)
+
+Purpose:
+Measures frequency of weather category.
+
+Expected Impact:
+Low-Medium
+
+--------------------------------------------------------------------------------
+
+28. road_freq
+Type: int64
+
+Formula:
+Count(RoadType)
+
+Purpose:
+Measures frequency of road type.
+
+Expected Impact:
+Low-Medium
+
+--------------------------------------------------------------------------------
+
+29. geo_road
+Type: category
+
+Formula:
+geohash + "_" + RoadType
+
+Purpose:
+Location-road interaction.
+
+Intuition:
+Different road types behave differently across locations.
+
+Expected Impact:
+High
+
+--------------------------------------------------------------------------------
+
+30. geo_target_hour
+Type: float64
+
+Formula:
+geohash_target × hour
+
+Purpose:
+Location demand interacted with time.
+
+Intuition:
+High-demand areas have different hourly patterns.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+31. geo_target_freq
+Type: float64
+
+Formula:
+geohash_target × geo_freq
+
+Purpose:
+Location demand interacted with location popularity.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+32. geo_target_road
+Type: float64
+
+Formula:
+geohash_target × (RoadType + 1)
+
+Purpose:
+Location demand interacted with road type.
+
+Expected Impact:
+High
+
+--------------------------------------------------------------------------------
+
+33. geo_target_temp
+Type: float64
+
+Formula:
+geohash_target × Temperature
+
+Purpose:
+Location demand interacted with temperature.
+
+Intuition:
+Temperature impacts locations differently.
+
+Expected Impact:
+Very High
+
+--------------------------------------------------------------------------------
+
+34. geo_hour_freq
+Type: float64
+
+Formula:
+Count(geo_hour)
+
+Purpose:
+Frequency of location-hour combinations.
+
+Expected Impact:
+High
+
+--------------------------------------------------------------------------------
+
+35. road_pressure
+Type: float64
+
+Formula:
+LargeVehicles × RoadType × geo_freq
+
+Purpose:
+Approximates traffic pressure on a road.
+
+Intuition:
+More heavy vehicles and more traffic increase congestion.
+
+Expected Impact:
+High
+
+--------------------------------------------------------------------------------
+
+36. road_density
+Type: float64
+
+Formula:
+geo_freq ÷ (NumberofLanes + 1)
+
+Purpose:
+Approximates traffic density.
+
+Intuition:
+Many vehicles on fewer lanes indicate congestion.
+
+Expected Impact:
+High
+
+--------------------------------------------------------------------------------
+
+37. road_capacity_time
+Type: int64
+
+Formula:
+NumberofLanes × (hour + 1) × (RoadType + 1)
+
+Purpose:
+Road capacity adjusted by time and road type.
+
+Intuition:
+Road effectiveness changes throughout the day.
+
+Expected Impact:
+High
+
+================================================================================
+TOTAL FEATURES: 37
+Core Features: 17
+Categorical Engineered Features: 8
+Target-Encoding Features: 5
+Interaction Features: 7
+================================================================================
